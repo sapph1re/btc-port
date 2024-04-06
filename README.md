@@ -2,7 +2,9 @@
 
 ## BTC Port
 
-This code is a proof-of-concept to run an Oracle that monitors transactions on a Bitcoin vault address and sends every transaction details to a smart contract on Solana.
+Please read the comprehensive [description](docs/Description.md) of the system design.
+
+This code so far is a proof-of-concept implementation of a part of the system. It runs an Oracle that monitors transactions on a Bitcoin vault address and sends every transaction's details to a smart contract on Solana.
 
 ### Instructions
 
