@@ -11,7 +11,11 @@ load_dotenv()
 # Bitcoin address to monitor
 VAULT = os.getenv('BITCOIN_VAULT_ADDRESS')
 
-r = redis.Redis(host='127.0.0.1', port=6379, db=0)
+r = redis.Redis(
+    host=os.getenv('REDIS_HOST'),
+    port=os.getenv('REDIS_PORT'),
+    db=os.getenv('REDIS_DB')
+)
 
 
 def get_address_txs(address, from_block=0):

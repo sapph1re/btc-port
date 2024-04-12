@@ -18,7 +18,11 @@ SOLANA_RPC = os.getenv('SOLANA_RPC')
 client = Client(SOLANA_RPC)
 payer = Account(SOLANA_PAYER_PRIVATE_KEY)
 
-r = redis.Redis(host='127.0.0.1', port=6379, db=0)
+r = redis.Redis(
+    host=os.getenv('REDIS_HOST'),
+    port=os.getenv('REDIS_PORT'),
+    db=os.getenv('REDIS_DB')
+)
 
 
 def notify_sc(user_address, tx_hash, amount, is_incoming, block):
