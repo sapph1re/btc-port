@@ -1,3 +1,4 @@
 solana
 python-dotenv
 requests
+redis
