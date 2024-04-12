@@ -1,3 +1,4 @@
+import pickle
 import redis
 import time
 import os
@@ -69,6 +70,7 @@ def run():
     from_block = get_sc_latest_block()
     while True:
         for tx in r.lrange('vault_txs', 0, -1):
+            tx = pickle.loads(tx)
             if tx['block'] <= from_block:
                 continue
             print(f"New transaction: {tx}")

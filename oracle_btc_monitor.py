@@ -1,4 +1,5 @@
 import requests
+import pickle
 import redis
 import time
 import os
@@ -50,15 +51,15 @@ def get_tx_info(tx):
     if sender == VAULT:
         is_incoming = False
         for vout in tx['vout']:
-            if vout['scriptPubKey']['addresses'][0] != VAULT:
-                user_address = vout['scriptPubKey']['addresses'][0]
+            if vout['scriptPubKey']['address'] != VAULT:
+                user_address = vout['scriptPubKey']['address']
                 amount = vout['value']
                 break
     else:
         is_incoming = True
         user_address = sender
         for vout in tx['vout']:
-            if vout['scriptPubKey']['addresses'][0] == VAULT:
+            if vout['scriptPubKey']['address'] == VAULT:
                 amount = vout['value']
                 break
     return {
@@ -72,9 +73,9 @@ def get_tx_info(tx):
 def latest_processed_block():
     """Get the latest processed transaction's block height from Redis"""
 
-    tx = r.lindex('vault_txs', {})
+    tx = r.lindex('vault_txs', 0)
     if tx:
-        return int(tx['block'])
+        return int(pickle.loads(tx)['block'])
     return 0
 
 def run():
@@ -89,7 +90,7 @@ def run():
             tx_info = get_tx_info(tx)
             print(f"New transaction: {tx_info}")
             # push the transaction to Redis for further processing
-            r.lpush('vault_txs', tx_info)
+            r.lpush('vault_txs', pickle.dumps(tx_info))
             # update the latest processed transaction's block height
             if tx_info['block'] > last_block:
                 last_block = tx_info['block']
