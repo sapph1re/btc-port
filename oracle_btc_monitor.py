@@ -27,7 +27,7 @@ def get_address_txs(address, from_block=0):
     txs = []
     for txid in data.get('txHistory', {}).get('txids', []):
         block = data.get('txHistory', {}).get('blockHeightsByTxid', {}).get(txid, 0)
-        if block <= from_block:
+        if block < from_block:
             continue
         txs.append({
             'txid': txid,
@@ -63,12 +63,42 @@ def get_tx_info(tx):
                 amount = vout['value']
                 break
     return {
+        'asset': 'BTC',
         'uaddr': user_address,
         'txid': txid,
         'amt': amount,
         'in': is_incoming,
         'block': block,
     }
+
+def get_brc20_txs(address, from_block=0):
+    """Retrieve the list of BRC20 transactions for the given address."""
+    url = f"https://open-api.unisat.io/v1/indexer/address/{address}/brc20/history"
+    response = requests.get(url)
+    data = response.json()
+    txs = []
+    for tx in data['data']['detail']:
+        if not tx['valid']:
+            continue
+        if not tx['type'] == 'transfer':
+            continue
+        block = tx['block']
+        if block < from_block:
+            continue
+        if tx['from'] == address:
+            is_incoming = False
+            user_address = tx['to']
+        else:
+            is_incoming = True
+            user_address = tx['from']
+        txs.append({
+            'asset': tx['ticker'],
+            'uaddr': user_address,
+            'txid': tx['txid'],
+            'amt': tx['amount'],
+            'in': is_incoming,
+            'block': block,
+        })
 
 def latest_processed_block():
     """Get the latest processed transaction's block height from Redis"""
