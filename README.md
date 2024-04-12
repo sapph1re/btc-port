@@ -10,25 +10,31 @@ This code so far is a proof-of-concept implementation of a part of the system. I
 
 1. Deploy the smart contract: `contracts/lib.rs`
 
-2. Create ".env" file from ".env.example":
+1. Run Redis:
+
+    ```shell
+    docker run -d -p 6379:6379 redis
+    ```
+
+1. Create ".env" file from ".env.example":
 
     ```shell
     cp .env.example .env
     ```
 
-3. Edit ".env" and set your values:
+1. Edit ".env" and set your values:
 
     ```shell
     nano .env
     ```
 
-4. Install dependencies
+1. Install dependencies
 
     ```shell
     pip install -r requirements.txt
     ```
 
-5. Run
+1. Run
 
     ```shell
     python oracle.py
