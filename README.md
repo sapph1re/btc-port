@@ -16,6 +16,8 @@ This code so far is a proof-of-concept implementation of a part of the system. I
     docker run -d -p 6379:6379 redis
     ```
 
+1. Run a [Hiro Ordinals API](https://github.com/hirosystems/ordinals-api) node (optional)
+
 1. Create ".env" file from ".env.example":
 
     ```shell

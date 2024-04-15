@@ -11,6 +11,7 @@ load_dotenv()
 
 # Bitcoin address to monitor
 VAULT = os.getenv('BITCOIN_VAULT_ADDRESS')
+HIRO_API_URL = os.getenv('HIRO_API_URL')
 
 r = redis.Redis(
     host=os.getenv('REDIS_HOST'),
@@ -73,7 +74,7 @@ def get_tx_info(tx):
 
 def get_brc20_txs(address, from_block=0):
     """Retrieve the list of BRC20 transactions for the given address."""
-    url = f"https://api.hiro.so/ordinals/v1/brc-20/activity?address={address}"
+    url = f"{HIRO_API_URL}activity?address={address}"
     response = requests.get(url)
     data = response.json()
     txs = []
