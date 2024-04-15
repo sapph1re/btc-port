@@ -73,29 +73,27 @@ def get_tx_info(tx):
 
 def get_brc20_txs(address, from_block=0):
     """Retrieve the list of BRC20 transactions for the given address."""
-    url = f"https://open-api.unisat.io/v1/indexer/address/{address}/brc20/history"
+    url = f"https://api.hiro.so/ordinals/v1/brc-20/activity?address={address}"
     response = requests.get(url)
     data = response.json()
     txs = []
-    for tx in data['data']['detail']:
-        if not tx['valid']:
+    for tx in data['results']:
+        if not tx['type'] == 'transfer_send':
             continue
-        if not tx['type'] == 'transfer':
-            continue
-        block = tx['block']
+        block = tx['block_height']
         if block < from_block:
             continue
-        if tx['from'] == address:
+        if tx['transfer_send']['from_address'] == address:
             is_incoming = False
-            user_address = tx['to']
+            user_address = tx['transfer_send']['to_address']
         else:
             is_incoming = True
-            user_address = tx['from']
+            user_address = tx['transfer_send']['from_address']
         txs.append({
             'asset': tx['ticker'],
             'uaddr': user_address,
-            'txid': tx['txid'],
-            'amt': tx['amount'],
+            'txid': tx['tx_id'],
+            'amt': tx['transfer_send']['amount'],
             'in': is_incoming,
             'block': block,
         })
