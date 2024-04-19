@@ -44,7 +44,7 @@ pub mod store_transactions {
             !processor.transactions.contains(&tx_hash),
             ErrorCode::TransactionAlreadyProcessed
         );
-    
+
         let transaction = TransactionData {
             user_address,
             tx_hash: tx_hash.clone(),
@@ -88,8 +88,7 @@ pub struct BitcoinTransactionProcessor {
     pub transaction_data: Vec<TransactionData>,
 }
 
-#[account]
-#[derive(Default)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
 pub struct TransactionData {
     pub user_address: String,
     pub tx_hash: String,
