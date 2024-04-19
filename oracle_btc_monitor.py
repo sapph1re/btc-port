@@ -100,30 +100,37 @@ def get_brc20_txs(address, from_block=0):
         })
 
 def latest_processed_block():
-    """Get the latest processed transaction's block height from Redis"""
+    """Get the latest processed transaction's block height from Redis, separately for BTC and BRC20."""
 
-    tx = r.lindex('vault_txs', 0)
-    if tx:
-        return int(pickle.loads(tx)['block'])
-    return 0
+    block_btc = 0
+    block_brc20 = 0
+    for i in range(r.llen('vault_txs')):
+        tx = pickle.loads(r.lindex('vault_txs', i))
+        if not block_btc and tx['asset'] == 'BTC':
+            block_btc = tx['block']
+        if not block_brc20 and tx['asset'] != 'BTC':
+            block_brc20 = tx['block']
+        if block_btc and block_brc20:
+            break
+    return block_btc, block_brc20
 
 def run():
     """Monitor transactions on Bitcoin vault and push them to Redis"""
 
     # get the latest processed transaction's block height
-    last_block = latest_processed_block()
-    print(f"Last processed block: {last_block}")
+    last_block_btc, last_block_brc20 = latest_processed_block()
+    print(f"Last processed block: {last_block_btc} for BTC, {last_block_brc20} for BRC20")
 
     while True:
-        # get the latest transactions
-        for tx in get_address_txs(VAULT, last_block + 1):
+        # get the latest BTC transactions
+        for tx in get_address_txs(VAULT, last_block_btc + 1):
             tx_info = get_tx_info(tx)
             print(f"New transaction: {tx_info}")
             # push the transaction to Redis for further processing
             r.lpush('vault_txs', pickle.dumps(tx_info))
             # update the latest processed transaction's block height
-            if tx_info['block'] > last_block:
-                last_block = tx_info['block']
+            if tx_info['block'] > last_block_btc:
+                last_block_btc = tx_info['block']
         time.sleep(60)
 
 
