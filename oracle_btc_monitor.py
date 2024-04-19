@@ -79,7 +79,7 @@ def get_brc20_txs(address, from_block=0):
     data = response.json()
     txs = []
     for tx in data['results']:
-        if not tx['type'] == 'transfer_send':
+        if not tx['operation'] == 'transfer_send':
             continue
         block = tx['block_height']
         if block < from_block:
@@ -112,6 +112,7 @@ def run():
 
     # get the latest processed transaction's block height
     last_block = latest_processed_block()
+    print(f"Last processed block: {last_block}")
 
     while True:
         # get the latest transactions
