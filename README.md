@@ -13,7 +13,7 @@ This code so far is a proof-of-concept implementation of a part of the system. I
 1. Run Redis:
 
     ```shell
-    docker run -d -p 6379:6379 redis
+    docker run --name postgres -e POSTGRES_PASSWORD=your_db_password -p 5432:5432 -d postgres
     ```
 
 1. Run a [Hiro Ordinals API](https://github.com/hirosystems/ordinals-api) node (optional)
@@ -24,7 +24,7 @@ This code so far is a proof-of-concept implementation of a part of the system. I
     cp .env.example .env
     ```
 
-1. Edit ".env" and set your values:
+1. Edit ".env" and set your values, make sure to set DB_URL with your db password:
 
     ```shell
     nano .env
@@ -39,5 +39,5 @@ This code so far is a proof-of-concept implementation of a part of the system. I
 1. Run
 
     ```shell
-    python oracle.py
+    python oracle_btc_monitor.py
     ```
