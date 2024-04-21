@@ -1,5 +1,4 @@
 import requests
-import pickle
 import time
 import os
 from db import Transaction, IntegrityError
@@ -124,6 +123,25 @@ def run():
     print(f"Last processed block: {last_block_btc} for BTC, {last_block_brc20} for BRC20")
 
     while True:
+        # get the latest BRC20 transactions
+        for tx in get_brc20_txs(VAULT, last_block_brc20 + 1):
+            print(f"New transaction: {tx}")
+            # push the transaction to DB for further processing
+            try:
+                Transaction.create(
+                    asset=tx['asset'],
+                    txid=tx['txid'],
+                    user_address=tx['uaddr'],
+                    amount=tx['amt'],
+                    is_incoming=tx['in'],
+                    block=tx['block'],
+                )
+            except IntegrityError:
+                print(f"Transaction already processed: {tx['txid']}")
+            # update the latest processed transaction's block height
+            if tx['block'] > last_block_brc20:
+                last_block_brc20 = tx['block']
+
         # get the latest BTC transactions
         for tx in get_address_txs(VAULT, last_block_btc + 1):
             tx_info = get_tx_info(tx)
@@ -143,6 +161,7 @@ def run():
             # update the latest processed transaction's block height
             if tx_info['block'] > last_block_btc:
                 last_block_btc = tx_info['block']
+                
         time.sleep(60)
 
 
