@@ -27,6 +27,8 @@ def get_address_txs(address, from_block=0):
             'txid': txid,
             'block': block,
         })
+    # Sort transactions by block height
+    txs.sort(key=lambda x: x['block'])
     return txs
 
 def get_tx(txid):
@@ -91,6 +93,9 @@ def get_brc20_txs(address, from_block=0):
             'in': is_incoming,
             'block': block,
         })
+    # Sort transactions by block height
+    txs.sort(key=lambda x: x['block'])
+    return txs
 
 def latest_processed_block():
     """Get the latest processed transaction's block height from DB, separately for BTC and BRC20."""
@@ -120,7 +125,7 @@ def run():
 
     # get the latest processed transaction's block height
     last_block_btc, last_block_brc20 = latest_processed_block()
-    print(f"Last processed block: {last_block_btc} for BTC, {last_block_brc20} for BRC20")
+    print(f"Last processed block: #{last_block_btc} for BTC, #{last_block_brc20} for BRC20")
 
     while True:
         # get the latest BRC20 transactions
@@ -161,7 +166,7 @@ def run():
             # update the latest processed transaction's block height
             if tx_info['block'] > last_block_btc:
                 last_block_btc = tx_info['block']
-                
+
         time.sleep(60)
 
 
