@@ -2,3 +2,5 @@ solana
 python-dotenv
 requests
 redis
+peewee
+psycopg2-binary

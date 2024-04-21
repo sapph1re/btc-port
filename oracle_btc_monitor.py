@@ -1,8 +1,8 @@
 import requests
 import pickle
-import redis
 import time
 import os
+from db import Transaction, IntegrityError
 from dotenv import load_dotenv
 
 
@@ -12,12 +12,6 @@ load_dotenv()
 # Bitcoin address to monitor
 VAULT = os.getenv('BITCOIN_VAULT_ADDRESS')
 HIRO_API_URL = os.getenv('HIRO_API_URL')
-
-r = redis.Redis(
-    host=os.getenv('REDIS_HOST'),
-    port=os.getenv('REDIS_PORT'),
-    db=os.getenv('REDIS_DB')
-)
 
 
 def get_address_txs(address, from_block=0):
@@ -100,22 +94,30 @@ def get_brc20_txs(address, from_block=0):
         })
 
 def latest_processed_block():
-    """Get the latest processed transaction's block height from Redis, separately for BTC and BRC20."""
+    """Get the latest processed transaction's block height from DB, separately for BTC and BRC20."""
 
     block_btc = 0
     block_brc20 = 0
-    for i in range(r.llen('vault_txs')):
-        tx = pickle.loads(r.lindex('vault_txs', i))
-        if not block_btc and tx['asset'] == 'BTC':
-            block_btc = tx['block']
-        if not block_brc20 and tx['asset'] != 'BTC':
-            block_brc20 = tx['block']
-        if block_btc and block_brc20:
-            break
+    try:
+        block_btc = Transaction.select().where(
+            Transaction.asset == 'BTC'
+        ).order_by(
+            Transaction.block.desc()
+        ).get().block
+    except Transaction.DoesNotExist:
+        pass
+    try:
+        block_brc20 = Transaction.select().where(
+            Transaction.asset != 'BTC'
+        ).order_by(
+            Transaction.block.desc()
+        ).get().block
+    except Transaction.DoesNotExist:
+        pass
     return block_btc, block_brc20
 
 def run():
-    """Monitor transactions on Bitcoin vault and push them to Redis"""
+    """Monitor transactions on Bitcoin vault and push them to DB"""
 
     # get the latest processed transaction's block height
     last_block_btc, last_block_brc20 = latest_processed_block()
@@ -126,8 +128,18 @@ def run():
         for tx in get_address_txs(VAULT, last_block_btc + 1):
             tx_info = get_tx_info(tx)
             print(f"New transaction: {tx_info}")
-            # push the transaction to Redis for further processing
-            r.lpush('vault_txs', pickle.dumps(tx_info))
+            # push the transaction to DB for further processing
+            try:
+                Transaction.create(
+                    asset=tx_info['asset'],
+                    txid=tx_info['txid'],
+                    user_address=tx_info['uaddr'],
+                    amount=tx_info['amt'],
+                    is_incoming=tx_info['in'],
+                    block=tx_info['block'],
+                )
+            except IntegrityError:
+                print(f"Transaction already processed: {tx_info['txid']}")
             # update the latest processed transaction's block height
             if tx_info['block'] > last_block_btc:
                 last_block_btc = tx_info['block']
