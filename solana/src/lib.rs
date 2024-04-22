@@ -8,6 +8,7 @@ pub mod store_transactions {
 
     pub fn init(ctx: Context<Initialize>) -> Result<()> {
         let processor = &mut ctx.accounts.processor;
+        processor.owner = ctx.accounts.owner.key();
         processor.oracle_authority = Pubkey::default();
         processor.transactions = vec![];
         processor.transaction_data = vec![];
@@ -18,10 +19,9 @@ pub mod store_transactions {
         ctx: Context<SetOracleAuthority>,
         oracle_authority: Pubkey,
     ) -> Result<()> {
-        let account_info = ctx.accounts.processor.to_account_info();
         let processor = &mut ctx.accounts.processor;
         require!(
-            *account_info.owner == ctx.accounts.owner.key(),
+            processor.owner == ctx.accounts.owner.key(),
             ErrorCode::InvalidOwner
         );
         processor.oracle_authority = oracle_authority;
@@ -59,7 +59,13 @@ pub mod store_transactions {
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
-    #[account(init, payer = owner, space = 8 + 8 + 8 * 32 + 8 * 32)]
+    #[account(
+        init,
+        payer = owner,
+        space = 8 + 8 + 8 * 32 + 8 * 32,
+        seeds = [b"processor"],
+        bump
+    )]
     pub processor: Account<'info, BitcoinTransactionProcessor>,
     #[account(mut)]
     pub owner: Signer<'info>,
@@ -83,6 +89,7 @@ pub struct AddTransaction<'info> {
 #[account]
 #[derive(Default)]
 pub struct BitcoinTransactionProcessor {
+    pub owner: Pubkey,
     pub oracle_authority: Pubkey,
     pub transactions: Vec<String>,
     pub transaction_data: Vec<TransactionData>,
