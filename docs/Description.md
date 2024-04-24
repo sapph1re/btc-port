@@ -168,3 +168,19 @@ where $M'$ - the new quorum M after adding the new Relayer.
 ### Unpegging to leave
 
 If the Leaving Relayer’s stake is critical for some of the possible quorums, the condition for leaving will not be met and the Leaving Relay should withdraw some pegged assets through the system out of Solana back to the Bitcoin blockchain, reducing the saturation of the MPC Bitcoin Vault and thus allowing them to leave.
+
+# Atomic Swaps
+
+BTC Port implements Atomic Swaps to facilitate even more efficient bridging of assets between the networks without having to go through the deposit or withdrawal process described above. Atomic swaps is an approach that enables completely trustless exchange of existing assets on different chains. By using existing capabilities of Bitcoin scripts they make sure the swap is either fully completed or reverted, eliminating any risk for the user and any need in a custodian.
+
+Furthermore they allow a very elegant integration of Lightning Network which reduces the operation finality to only a few seconds.
+
+Atomic Swaps allow the users to:
+
+- swap native on-chain BTC to PBTC on Solana and back
+- swap native BRC-20 tokens to their pegged versions on Solana
+- swap their BTC on Lightning Network to PBTC on Solana and back **in seconds**
+
+## Automated Liquidity
+
+Further evolution of the protocol allows holders of Bitcoin to provide their BTC and PBTC as liquidity to facilitate Atomic Swaps and earn revenue from swap fees. This not only offers a trustless revenue source as interest on top of held BTC, but also benefits the ecosystem by ensuring the highest possible mobility of BTC across chains.
