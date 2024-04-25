@@ -15,7 +15,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SOLANA_RPC = os.getenv('SOLANA_RPC')
-SOLANA_PROGRAM_ID = os.getenv('SOLANA_PROGRAM_ID')
 SOLANA_PAYER_PRIVATE_KEY = os.getenv('SOLANA_PAYER_PRIVATE_KEY')
 
 conn = AsyncClient(SOLANA_RPC)
