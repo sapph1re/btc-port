@@ -49,10 +49,16 @@ def get_sc_latest_block():
 async def main():
     """Get new transactions from DB and push to the Solana program."""
 
-    processor_acc_addr = Pubkey.find_program_address([bytes("processor", "utf-8")], PROGRAM_ID)[0]
-    print(processor_acc_addr)
+    print(f"Connecting to program: {PROGRAM_ID}")
+    processor_acc_addr = Pubkey.find_program_address([bytes("processor", "utf-8")], PROGRAM_ID)[0]    
     processor_acc = await BitcoinTransactionProcessor.fetch(conn, processor_acc_addr)
-    print(processor_acc)
+    print(f"BitcoinTransactionProcessor:")
+    print(f" - Account: {processor_acc_addr}")
+    print(f" - Owner: {processor_acc.owner}")
+    print(f" - Oracle Authority: {processor_acc.oracle_authority}")
+    print(f"Latest pushed transactions:")
+    for tx in processor_acc.transaction_data:
+        print(f" - {tx}")
 
     # from_block = get_sc_latest_block()
     # while True:
