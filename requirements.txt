@@ -1,4 +1,6 @@
 solana
+solders
+anchorpy[cli]
 python-dotenv
 requests
 peewee
