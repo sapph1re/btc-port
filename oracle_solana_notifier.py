@@ -6,9 +6,9 @@ from solana.rpc.async_api import AsyncClient
 from solders.keypair import Keypair
 from solders.pubkey import Pubkey
 from anchorpy import Program, Provider, Wallet
-from solana_program.client_py.program_id import PROGRAM_ID
-from solana_program.client_py.instructions import add_transaction
-from solana_program.client_py.accounts import BitcoinTransactionProcessor
+from solana_program.client.program_id import PROGRAM_ID
+from solana_program.client.instructions import add_transaction
+from solana_program.client.accounts import BitcoinTransactionProcessor
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
