@@ -30,10 +30,12 @@ pub mod store_transactions {
 
     pub fn add_transaction(
         ctx: Context<AddTransaction>,
+        asset: String,
         user_address: String,
         tx_hash: String,
         amount: u64,
         is_incoming: bool,
+        block: u32,
     ) -> Result<()> {
         let processor = &mut ctx.accounts.processor;
         require!(
@@ -46,13 +48,15 @@ pub mod store_transactions {
         );
 
         let transaction = TransactionData {
+            asset,
             user_address,
             tx_hash: tx_hash.clone(),
             amount,
             is_incoming,
+            block,
         };
         processor.transaction_data.push(transaction);
-        processor.transactions.push(tx_hash); // Use the original tx_hash value here
+        processor.transactions.push(tx_hash);
         Ok(())
     }
 }
@@ -97,10 +101,12 @@ pub struct BitcoinTransactionProcessor {
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
 pub struct TransactionData {
+    pub asset: String,
     pub user_address: String,
     pub tx_hash: String,
     pub amount: u64,
     pub is_incoming: bool,
+    pub block: u32,
 }
 
 #[error_code]

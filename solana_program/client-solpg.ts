@@ -47,7 +47,14 @@ await loadAndPrintTransactions();
 console.log("Adding transaction...");
 try {
   const addTxHash = await pg.program.methods
-    .addTransaction("user-address", "tx-hash", new BN(1234), true)
+    .addTransaction(
+      "BTC",
+      "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+      "62f26c3d53799b3fe8bc22ea11369613c96b55399b022ed90014fe4a76a4acc4",
+      new BN(1000),
+      true,
+      840000
+    )
     .accounts({
       processor: processorAccountPda[0],
       oracleAuthority: pg.wallet.publicKey,
@@ -74,13 +81,14 @@ async function loadAndPrintTransactions() {
 
   console.log("Stored transactions:");
   for (const transaction of processorAccount.transactionData) {
-    console.log(
-      ` - user address: ${transaction.userAddress}, tx: ${
-        transaction.txHash
-      }, amount: ${transaction.amount.toNumber()}, incoming: ${
-        transaction.isIncoming
-      }`
-    );
+    console.log(` - \
+      asset: ${transaction.asset}, \
+      user address: ${transaction.userAddress}, \
+      tx: ${transaction.txHash}, \
+      amount: ${transaction.amount.toNumber()}, \
+      incoming: ${transaction.isIncoming}, \
+      block: ${transaction.block} \
+    `);
   }
   console.log("---");
 }
